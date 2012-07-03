@@ -70,11 +70,48 @@ public class PeriodicTable {
 		            "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn","Uut", "Fl","Uup", "Lv","Uus","Uuo",
 	};
 	
+//	public static final int A = 0x0000;//air
+//	public static final int L = 0x0001;//liquid
+//	public static final int M = 0x0002;//metal
+	
+	public static final int NM = 0x0000;//비금속
+	public static final int AM = 0x0010;//알칼리금속
+	public static final int AEM = 0x0020;//알칼리토금속
+	public static final int TM = 0x0030;//전이금속
+	public static final int M = 0x0040;//일반금속
+	public static final int ML = 0x0050;//메탈로이드
+	public static final int HA = 0x0060;//할로겐
+	public static final int NG = 0x0070;//노블가스
+
+	public static final int G1 = AM;
+	public static final int G2 = AEM;
+	public static final int GTM = TM;
+	public static final int GM = M;
+	public static final int GML = ML;
+	public static final int GNM = NM;
+	public static final int GH = HA;
+	public static final int G18 = NG;
+
+	static final int[] atomAttributes = {
+		 GNM,  G18,
+		  G1,   G2,  GML,  GNM,  GNM,  GNM,   GH,  G18,
+		  G1,   G2,   GM,  GML,  GNM,  GNM,   GH,  G18,
+		  G1,   G2,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,   GM,  GML,  GML,  GNM,   GH,  G18,
+		  G1,   G2,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,   GM,   GM,  GML,  GML,   GH,  G18,
+		  G1,   G2,
+		             GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,
+		             GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,   GM,   GM,   GM,   GM,  GML,  G18,
+		  G1,   G2,
+		             GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,
+		             GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,  GTM,   GM,   GM,   GM,   GM,   GM,  G18,
+	};
+	
 	public static class Atom{
 		int no;
 		String sign;
 		String name;
 		String weight;
+		int attribute;
 		int group[];
 		
 		Animation3D animation3d;
@@ -100,6 +137,7 @@ public class PeriodicTable {
 			atom.sign = atomSigns[i];
 			atom.name = atomNames[i];
 			atom.weight = atomWeights[i];
+			atom.attribute = atomAttributes[i];
 			atom.group = null;
 			atoms.add(atom);
 		}

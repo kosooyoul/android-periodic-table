@@ -10,6 +10,10 @@ public class Animation3D {
 		float z = 0.0f;
 	}
 	
+	public interface OnAnimationListener{
+		public void onArrived(Animation3D animation3d, int element);
+	}
+	
 	Element3D pivot;
 	Element3D targetPivot;
 	boolean isNeedMovingPivot = false;
@@ -22,6 +26,8 @@ public class Animation3D {
 	Element3D targetAngle;
 	boolean isNeedRotatingAngle = false;
 	
+	OnAnimationListener mOnAnimationListener = null;
+	
 	public Animation3D() {
 		super();
 		pivot = new Element3D();
@@ -31,6 +37,10 @@ public class Animation3D {
 		angle = new Element3D();
 		targetAngle = new Element3D();
 	}
+	
+	public void setOnAnimationListener(OnAnimationListener onAnimationListener){
+		mOnAnimationListener = onAnimationListener;
+	}
 
 	public boolean isNeedPlay(){
 		return isNeedMovingPivot || isNeedMovingPosition || isNeedRotatingAngle;
@@ -38,13 +48,25 @@ public class Animation3D {
 	
 	public void play(){
 		if(isNeedMovingPivot){
-			moveToTarget(pivot, targetPivot);
+			if(moveToTarget(pivot, targetPivot)){
+				isNeedMovingPivot = false;
+				if(mOnAnimationListener != null)
+					mOnAnimationListener.onArrived(this, PIVOT);
+			}
 		}
 		if(isNeedMovingPosition){
-			moveToTarget(position, targetPosition);
+			if(moveToTarget(position, targetPosition)){
+				isNeedMovingPosition = false;
+				if(mOnAnimationListener != null)
+					mOnAnimationListener.onArrived(this, POSITION);
+			}
 		}
 		if(isNeedRotatingAngle){
-			moveToTarget(angle, targetAngle);
+			if(moveToTarget(angle, targetAngle, 360 * 0.005f)){
+				isNeedRotatingAngle = false;
+				if(mOnAnimationListener != null)
+					mOnAnimationListener.onArrived(this, OBJECT_ANGLE);
+			}
 		}
 	}
 	
@@ -159,24 +181,112 @@ public class Animation3D {
 		switch(element){
 			case PIVOT:
 				snapElement3D(targetPivot, unitValue);
+				isNeedMovingPivot = true;
 				break;
 			case POSITION:
 				snapElement3D(targetPosition, unitValue);
+				isNeedMovingPosition = true;
 				break;
 			case PIVOT_ANGLE:
 				break;
 			case OBJECT_ANGLE:
 				snapElement3D(targetAngle, unitValue);
+				isNeedRotatingAngle = true;
 				break;
 		}
 	}
 
-	private void moveToTarget(Element3D current, Element3D target){
-		current.x += (target.x - current.x) * 0.2f;
-		current.y += (target.y - current.y) * 0.2f;
-		current.z += (target.z - current.z) * 0.2f;
+	private boolean moveToTarget(Element3D current, Element3D target){
+		float dx = (target.x - current.x) * 0.2f;
+		float dy = (target.y - current.y) * 0.2f;
+		float dz = (target.z - current.z) * 0.2f;
+		
+		if(dx < 0){
+			if(dx > -0.01f)dx = -0.01f;
+		}else if(dx > 0){
+			if(dx < 0.01f)dx = 0.01f;
+		}
+		
+		if(dy < 0){
+			if(dy > -0.01f)dy = -0.01f;
+		}else if(dy > 0){
+			if(dy < 0.01f)dy = 0.01f;
+		}
+		
+		if(dz < 0){
+			if(dz > -0.01f)dz = -0.01f;
+		}else if(dz > 0){
+			if(dz < 0.01f)dz = 0.01f;
+		}
+		
+		current.x += dx;
+		current.y += dy;
+		current.z += dz;
+		
+		if(Math.abs(target.x - current.x) < 0.01f){
+			current.x = target.x;
+		}else{
+			return false;
+		}
+		if(Math.abs(target.y - current.y) < 0.01f){
+			current.y = target.y;
+		}else{
+			return false;
+		}
+		if(Math.abs(target.z - current.z) < 0.01f){
+			current.z = target.z;
+		}else{
+			return false;
+		}
+		return true;
+		
 	}
-
+	
+	private boolean moveToTarget(Element3D current, Element3D target, float stopRange){
+		float dx = (target.x - current.x) * 0.2f;
+		float dy = (target.y - current.y) * 0.2f;
+		float dz = (target.z - current.z) * 0.2f;
+		
+		if(dx < 0){
+			if(dx > -stopRange)dx = -stopRange;
+		}else if(dx > 0){
+			if(dx < stopRange)dx = stopRange;
+		}
+		
+		if(dy < 0){
+			if(dy > -stopRange)dy = -stopRange;
+		}else if(dy > 0){
+			if(dy < stopRange)dy = stopRange;
+		}
+		
+		if(dz < 0){
+			if(dz > -stopRange)dz = -stopRange;
+		}else if(dz > 0){
+			if(dz < stopRange)dz = stopRange;
+		}
+		
+		current.x += dx;
+		current.y += dy;
+		current.z += dz;
+		
+		if(Math.abs(target.x - current.x) < stopRange){
+			current.x = target.x;
+		}else{
+			return false;
+		}
+		if(Math.abs(target.y - current.y) < stopRange){
+			current.y = target.y;
+		}else{
+			return false;
+		}
+		if(Math.abs(target.z - current.z) < stopRange){
+			current.z = target.z;
+		}else{
+			return false;
+		}
+		return true;
+		
+	}
 	private void snapElement3D(Element3D element, float unitValue){
 		if(element.x < 0){
 			element.x = (int)(element.x / unitValue - 0.5f) * unitValue;
@@ -193,6 +303,7 @@ public class Animation3D {
 		}else{
 			element.z = (int)(element.z / unitValue + 0.5f) * unitValue;
 		}
+		
 	}
 
 	

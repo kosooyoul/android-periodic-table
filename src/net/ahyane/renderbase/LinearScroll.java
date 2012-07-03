@@ -8,7 +8,8 @@ public class LinearScroll {
     private static final float DECREMENT_FLING_IN_OF_RANGE = 0.95f;
     private static final float DECREMENT_FLING_OUT_OF_RANGE = 0.5f;
     private static final float FACTOR_BOUNCED = 0.2f;
-    private static final float STOP_RANGE_SCROLLED_SIZE = 1.0f;
+    //private static final float STOP_RANGE_SCROLLED_SIZE = 1.0f;
+    private float STOP_RANGE_SCROLLED_SIZE = 1.0f;
     
     protected boolean isBounced = false;
 	private boolean isTouchDowned  = false;
@@ -42,7 +43,7 @@ public class LinearScroll {
 		mLayer = layer;
 	}
 	
-	public LinearScroll(Layer layer, int scrolledPosition) {
+	public LinearScroll(Layer layer, float scrolledPosition) {
 		mLayer = layer;
 		mScrolledPosition = -scrolledPosition;
 	}
@@ -62,6 +63,7 @@ public class LinearScroll {
     
     public void setSize(float scrollerSize){
     	mScrollerSize = scrollerSize;
+    	STOP_RANGE_SCROLLED_SIZE = scrollerSize * 0.005f; 
     }
     
     public void setLayer(Layer layer){
@@ -85,7 +87,7 @@ public class LinearScroll {
     	return mStep > 0;
     }
     
-	public void touchDown(int touchedPosition){
+	public void touchDown(float touchedPosition){
 		isTouchDowned = true;
 		isFactorMove = false;
 		mTouchedPosition = mOldTouchedPosition = touchedPosition;
@@ -100,11 +102,11 @@ public class LinearScroll {
         }
 	}
 	
-	public void touchMove(int touchedPosition){
+	public void touchMove(float touchedPosition){
 		mTouchedPosition = touchedPosition;
 	}
 	
-	public void touchUp(int touchedPosition){
+	public void touchUp(float touchedPosition){
 		isTouchDowned = false;
 		isArrived = false;
 		mTouchedPosition = mOldTouchedPosition = touchedPosition;
@@ -267,9 +269,13 @@ public class LinearScroll {
     public boolean isArrived(){
     	return isArrived;
     }
-    
+
     public float getScrolledRatio(){
     	return -((float)(mScrolledPosition - mStartMargin) / (getEndPosition() - getStartPosition())); 
+    }
+    
+    public void setScrolledRatio(float ratio){
+    	mScrolledPosition = -ratio * (getEndPosition() - getStartPosition()) + mStartMargin;
     }
     
     public void setLoop(boolean flag){
@@ -333,6 +339,10 @@ public class LinearScroll {
 
     public boolean isLastStep(){
     	return (mScrolledPosition - mStep * 0.5f < -getEndPosition()) && !isLoop;
+    }
+    
+    public float getScrollRange(){
+    	return getEndPosition() - getStartPosition();
     }
     
 }

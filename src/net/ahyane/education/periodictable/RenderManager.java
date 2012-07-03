@@ -78,53 +78,88 @@ public class RenderManager {
 	
 	public void drawAtom(Atom atom){
 		if(atom != null){
-			String sign = atom.sign;
-			StringTexture signTexture;
-			signTexture = mSignTextureBox.get(sign);
-			if(signTexture == null){
-				signTexture = new StringTexture(sign, sConfigSign);
-				mRenderView.loadTexture(signTexture);
-				mSignTextureBox.put(sign, signTexture);
-			}
-
-			int no = atom.no;
-			StringTexture numberTexture;
-			numberTexture = mNumberTextureBox.get(no);
-			if(numberTexture == null){
-				numberTexture = new StringTexture(String.valueOf(no), sConfigNumber);
-				mRenderView.loadTexture(numberTexture);
-				mNumberTextureBox.put(no, numberTexture);
-			}
-
-			String weight = atom.weight;
-			StringTexture weightTexture;
-			weightTexture = mWeightTextureBox.get(weight);
-			if(weightTexture == null){
-				weightTexture = new StringTexture(String.valueOf(weight), sConfigWeight);
-				mRenderView.loadTexture(weightTexture);
-				mWeightTextureBox.put(weight, weightTexture);
-			}
-
-			String name = atom.name;
-			StringTexture nameTexture;
-			nameTexture = mNameTextureBox.get(name);
-			if(nameTexture == null){
-				nameTexture = new StringTexture(String.valueOf(name), sConfigName);
-				mRenderView.loadTexture(nameTexture);
-				mNameTextureBox.put(name, nameTexture);
+			//Get String Textures
+			StringTexture signTexture = mSignTextureBox.get(atom.sign);
+			StringTexture numberTexture = mNumberTextureBox.get(atom.no);
+			StringTexture weightTexture = mWeightTextureBox.get(atom.weight);
+			StringTexture nameTexture = mNameTextureBox.get(atom.name);
+			
+			//Make String Textures
+			{
+				if(signTexture == null){
+					signTexture = new StringTexture(atom.sign, sConfigSign);
+					mSignTextureBox.put(atom.sign, signTexture);
+//					mRenderView.loadTexture(signTexture);
+//					final StringTexture stringTexture = signTexture;
+//					new Thread(new Runnable(){
+//						@Override
+//						public void run() {
+//							mRenderView.loadTexture(stringTexture);
+//						}
+//					}).setPriority(Thread.MIN_PRIORITY);
+				}
+	
+				if(numberTexture == null){
+					numberTexture = new StringTexture(String.valueOf(atom.no), sConfigNumber);
+					mNumberTextureBox.put(atom.no, numberTexture);
+//					mRenderView.loadTexture(numberTexture);
+//					final StringTexture stringTexture = numberTexture;
+//					new Thread(new Runnable(){
+//						@Override
+//						public void run() {
+//							mRenderView.loadTexture(stringTexture);
+//						}
+//					}).setPriority(Thread.MIN_PRIORITY);
+				}
+	
+				if(weightTexture == null){
+					weightTexture = new StringTexture(String.valueOf(atom.weight), sConfigWeight);
+					mWeightTextureBox.put(atom.weight, weightTexture);
+//					mRenderView.loadTexture(weightTexture);
+//					final StringTexture stringTexture = weightTexture;
+//					new Thread(new Runnable(){
+//						@Override
+//						public void run() {
+//							mRenderView.loadTexture(stringTexture);
+//						}
+//					}).setPriority(Thread.MIN_PRIORITY);
+				}
+	
+				if(nameTexture == null){
+					nameTexture = new StringTexture(String.valueOf(atom.name), sConfigName);
+					mNameTextureBox.put(atom.name, nameTexture);
+//					mRenderView.loadTexture(nameTexture);
+//					final StringTexture stringTexture = nameTexture;
+//					new Thread(new Runnable(){
+//						@Override
+//						public void run() {
+//							mRenderView.loadTexture(stringTexture);
+//						}
+//					}).setPriority(Thread.MIN_PRIORITY);
+				}
 			}
 			
+			//Rendering
 			GLES11.glPushMatrix();
 			{
-				GLES11.glDisable(GLES11.GL_BLEND);
 				atom.animation3d.translate();
-				atom.animation3d.play();
 				GLES11.glPushMatrix();
 					GLES11.glScalef(0.95f, 0.95f, 0.95f);
-					mGLCube.render();
+					mGLCube.renderWire();
+					switch(atom.attribute){
+						case PeriodicTable.G1:GLES11.glColor4f(1.0f, 0.5f, 0.0f, 0.75f);break;
+						case PeriodicTable.G2:GLES11.glColor4f(1.0f, 0.75f, 0.0f, 0.75f);break;
+						case PeriodicTable.GTM:GLES11.glColor4f(1.0f, 0.7f, 0.5f, 0.5f);break;
+						case PeriodicTable.GM:GLES11.glColor4f(1.0f, 0.55f, 0.4f, 0.75f);break;
+						case PeriodicTable.GML:GLES11.glColor4f(0.5f, 0.0f, 1.0f, 0.75f);break;
+						case PeriodicTable.GNM:GLES11.glColor4f(0.8f, 0.25f, 0.75f, 0.75f);break;
+						case PeriodicTable.GH:GLES11.glColor4f(0.0f, 0.75f, 0.0f, 0.75f);break;
+						case PeriodicTable.G18:GLES11.glColor4f(0.0f, 0.75f, 1.0f, 0.75f);break;
+						default:GLES11.glColor4f(0.87f, 0.93f, 0.95f, 0.75f);
+					}
+					mGLCube.renderFace();
 				GLES11.glPopMatrix();
 				GLES11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-				GLES11.glEnable(GLES11.GL_BLEND);
 
 				GLES11.glEnable(GLES11.GL_TEXTURE_2D);
 				GLES11.glEnable(GLES11.GL_CULL_FACE);
